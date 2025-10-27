@@ -1,0 +1,99 @@
+---
+title: "Penguins Data Analysis"
+author: "Yousuf Ahmed Nahian"
+date: "10/10/2025"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(palmerpenguins)
+library(dplyr)
+```
+
+# Introduction
+This report analyzes the Palmer Penguins dataset using the tidyverse in R. The goal is to explore, summarize, and visualize key patterns in penguin species through data manipulation and graphical analysis.
+
+```{r}
+head(penguins)
+summary(penguins)
+```
+
+This gives a quick overview of the data and gives summary statistics like mean, median, missing values
+
+```{r}
+penguins_clean <- penguins %>% drop_na
+penguins_clean
+```
+
+This cleans our data and removes any rows with missing values.
+
+```{r}
+adelie_penguins <- penguins_clean %>% filter(species == "Adelie")
+adelie_penguins
+```
+
+This line selects only Adelie penguins from the cleaned dataset so we can analyze them separately.
+
+```{r}
+adelie_data <- adelie_penguins %>% select(species, flipper_length_mm, body_mass_g)
+adelie_data
+```
+
+We do this to keep only the columns we need, making the dataset simpler and easier to work with.
+
+```{r}
+adelie_data <- adelie_data %>% mutate(body_mass_kg = body_mass_g / 1000)
+adelie_data
+```
+
+We convert the body mass to kg from grams.
+
+```{r}
+penguins_summary <- penguins_clean %>%
+  group_by(species) %>%
+  summarise(
+    avg_body_mass = mean(body_mass_g),
+    avg_flipper_length = mean(flipper_length_mm),
+    count = n()
+  )
+penguins_summary
+```
+
+This calculates the average body mass, average flipper length, and number of penguins and saves it as a small summary table.
+
+```{r}
+penguins_summary <- penguins_summary %>%
+  arrange(desc(avg_body_mass))
+penguins_summary
+```
+
+This sorts our data from heaviest to lightest.
+
+```{r}
+ggplot(penguins_clean, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() +
+  labs(title = "Flipper Length vs Body Mass", x = "Flipper Length (mm)", y = "Body Mass (g)")
+```
+
+We create a Scatter plot which helps us to see relationships between Flipper Length and Body Mass.
+
+```{r}
+ggplot(penguins_clean, aes(x = species, y = body_mass_g, fill = species)) +
+  geom_boxplot() +
+  labs(title = "Body Mass Distribution by Species", y = "Body Mass (g)")
+```
+
+We now created a boxplot which helps us to see median, quartiles, and outliers which helps us to compare body mass across species.
+
+# Summary 
+
+Adelie penguins are generally smaller than Gentoo and Chinstrap penguins.
+
+Flipper length is positively correlated with body mass.
+
+Gentoo penguins are the heaviest species on average.
+
+
+
